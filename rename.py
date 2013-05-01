@@ -25,7 +25,7 @@ def main():
     f_names = file2.split('\n')
 
     # [Taka]_Naruto_Shippuuden_230_[720p][4EC3BBF6].mp4
-    r=re.compile('(Naruto[_\-.]Shippuuden)[^0-9]*([0-9]{3})-?([0-9]{3})?[^.]*.(.*)')
+    r=re.compile('(Naruto[_\-. ]Shippuuden)[^0-9]*([0-9]{3})-?([0-9]{3})?[^.]*.(.*)')
     file_names = []
     for f in f_names:
         match = r.search(f)
@@ -35,22 +35,22 @@ def main():
             if second is not None:
                 file_names.append((int(second), f, suff))
 
-    matched = [ (x[1], details[x[0]], x[2]) for x in file_names ]
+    matched = [ (x[1], details[x[0]], x[2], x[0]) for x in file_names ]
 
     d = defaultdict(list)
-    for file, title, suff in matched:
-        d[file].append((title,suff))
+    for file, title, suff, num in matched:
+        d[file].append((title,suff,num))
 
     for key, values in d.items():
         format = {}
 
-        ((season, episode, name), type) = values[0]
+        ((season, episode, name), suff, num) = values[0]
         season = str(season)
         season_pad = season.zfill(2)
         episode = str(episode).zfill(2)
 
         if len(values) == 2:
-            ((_, episode2, title2),_) = values[1]
+            ((_, episode2, title2),_,_) = values[1]
             episode += "-" + str(episode2).zfill(2)
             name = name + " & " + title2
 
@@ -60,9 +60,10 @@ def main():
         format['season_pad'] = season_pad
         format['episode'] = episode
         format['name'] = name
-        format['type'] = type
+        format['suff'] = suff
+        format['num'] = str(num).zfill(3) 
 
-        print ('mv "%(src)s" "Season %(season)s/Naruto Shippuuden - %(season_pad)sx%(episode)s - %(name)s.%(type)s"') % (format)
+        print ('mv "%(src)s" "Season %(season)s/Naruto Shippuuden - %(season_pad)sx%(episode)s - %(name)s (%(num)s).%(suff)s"') % (format)
 
 
 if __name__ == "__main__":
